@@ -89,14 +89,14 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
             ambient.getSoundLevel(function(err, soundLevel) {
                 if(err) {
                   console.error(err);
-                  ambientSensorSound.resolve(0);
+                  return ambientSensorSound.resolve(0);
                 }
                 ambientSensorSound.resolve((soundLevel || 0).toFixed(8));
             });
             ambient.getLightLevel(function(err, lightLevel) {
                 if(err) {
                   console.error(err);
-                  ambientSensorLight.resolve(0);
+                  return ambientSensorLight.resolve(0);
                 }
                 ambientSensorLight.resolve((lightLevel || 0).toFixed(8));
             });
@@ -112,7 +112,7 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
             climate.readHumidity(function(err, humidity) {
                 if(err) {
                   console.error(err);
-                  climateSensorHumidity.resolve(0);
+                  return climateSensorHumidity.resolve(0);
                 }
                 climateSensorHumidity.resolve(humidity.toFixed(4));
             });
@@ -120,7 +120,7 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
             climate.readTemperature('f', function(err, temperature) {
                 if(err) {
                   console.error(err);
-                  climateSensorTemperature.resolve(0);
+                  return climateSensorTemperature.resolve(0);
                 }
                 climateSensorTemperature.resolve(temperature.toFixed(4));
             });
