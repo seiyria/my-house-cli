@@ -67,6 +67,10 @@ ROOT.authWithCustomToken(TOKEN, function(err, success) {
 
 var DATA = ROOT.child('datapoints');
 
+var resolveWithPrecision = function(promise, number, precision) {
+    promise.resolve((number || 0).toFixed(precision));    
+};
+
 // wait for sensors to load
 q.all([climateReady.promise, ambientReady.promise]).then(function() {
     var ambientSensorSound = null;
@@ -91,14 +95,14 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
                   console.error(err);
                   return ambientSensorSound.resolve(0);
                 }
-                ambientSensorSound.resolve((soundLevel || 0).toFixed(8));
+                resolveWithPrecision(ambientSensorSound, soundLevel, 8);
             });
             ambient.getLightLevel(function(err, lightLevel) {
                 if(err) {
                   console.error(err);
                   return ambientSensorLight.resolve(0);
                 }
-                ambientSensorLight.resolve((lightLevel || 0).toFixed(8));
+                resolveWithPrecision(ambientSensorLight, lightLevel, 8);
             });
         } else {
             ambientSensorSound.resolve(0);
@@ -114,7 +118,7 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
                   console.error(err);
                   return climateSensorHumidity.resolve(0);
                 }
-                climateSensorHumidity.resolve(humidity.toFixed(4));
+                resolveWithPrecision(climateSensorHumidity, humidity, 4);
             });
 
             climate.readTemperature('f', function(err, temperature) {
@@ -122,7 +126,7 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
                   console.error(err);
                   return climateSensorTemperature.resolve(0);
                 }
-                climateSensorTemperature.resolve(temperature.toFixed(4));
+                resolveWithPrecision(climateSensorTemperature, temperature, 4);
             });
         } else {
             climateSensorHumidity.resolve(0);
