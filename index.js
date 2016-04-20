@@ -1,6 +1,8 @@
 
 // constants
 var DELAY = 300000; // every 5 minutes
+var DAYS_OF_DATA = 5; // keep 5 days worth of data
+// var DELAY = 5000;
 var FIREBASE_DATA = require('./firebase.json'); // { url, token }
 var MY_NAME = require('os').hostname();
 
@@ -68,7 +70,7 @@ ROOT.authWithCustomToken(TOKEN, function(err, success) {
 var DATA = ROOT.child('datapoints');
 
 var resolveWithPrecision = function(promise, number, precision) {
-    promise.resolve((number || 0).toFixed(precision));    
+    promise.resolve((number || 0).toFixed(precision));
 };
 
 // wait for sensors to load
@@ -79,6 +81,7 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
     var climateSensorTemperature = null;
 
     setInterval(function() {
+        var timestamp = new Date();
         tessel.led[2].on();
 
         if(ambientSensorSound) ambientSensorSound.resolve(0);
@@ -141,20 +144,20 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
             climateSensorTemperature.promise])
 
             .then(function(data) {
-              var now = new Date();
               var result = {
                   sound: +data[0],
                   light: +data[1],
                   humidity: +data[2],
                   temperature: +data[3],
-                  timestamp: now.getTime(),
+                  timestamp: timestamp.getTime(),
                   reporter: MY_NAME,
-                  '.priority': now.getTime()
+                  '.priority': timestamp.getTime()
               };
 
               DATA.push(result);
-              timestamp.setDate(now.getDate()-2);
-              DATA.endAt(timestamp).on('child_added', function(snap) {
+
+              timestamp.setDate(timestamp.getDate()-DAYS_OF_DATA);
+              DATA.orderByChild('timestamp').endAt(timestamp.getTime()).on('child_added', function(snap) {
                   snap.ref().remove();
               });
 
