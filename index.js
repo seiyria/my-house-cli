@@ -1,10 +1,15 @@
 
 // constants
 var DELAY = 300000; // every 5 minutes
-var DAYS_OF_DATA = 5; // keep 5 days worth of data
+var DAYS_OF_DATA = 4; // keep 4 days worth of data
 // var DELAY = 5000;
 var FIREBASE_DATA = require('./firebase.json'); // { url, token }
 var MY_NAME = require('os').hostname();
+
+// reported temp is consistently too high
+var ADJUSTMENTS = {
+  temperature: -10
+};
 
 // deps
 var q = require('q');
@@ -70,6 +75,7 @@ ROOT.authWithCustomToken(TOKEN, function(err, success) {
 var DATA = ROOT.child('datapoints');
 
 var resolveWithPrecision = function(promise, number, precision) {
+    if(!promise) return;
     promise.resolve((number || 0).toFixed(precision));
 };
 
@@ -161,7 +167,9 @@ q.all([climateReady.promise, ambientReady.promise]).then(function() {
                   snap.ref().remove();
               });
 
-              tessel.led[2].off();
+              setTimeout(function() {
+                tessel.led[2].off();
+              }, 1000);
           });
 
     }, DELAY);
